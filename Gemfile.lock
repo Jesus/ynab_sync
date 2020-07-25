@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     ynab_sync (0.1.0)
-      revolut-api
+      plaid
 
 GEM
   remote: https://rubygems.org/
@@ -12,11 +12,13 @@ GEM
       multipart-post (>= 1.2, < 3)
     faraday_middleware (1.0.0)
       faraday (~> 1.0)
+    hashie (4.1.0)
     multipart-post (2.1.1)
+    plaid (11.0.0)
+      faraday
+      faraday_middleware
+      hashie (>= 3.4.3)
     rake (13.0.1)
-    revolut-api (0.1.0)
-      faraday (>= 0.15)
-      faraday_middleware (>= 0.12)
     rspec (3.9.0)
       rspec-core (~> 3.9.0)
       rspec-expectations (~> 3.9.0)
@@ -37,7 +39,6 @@ PLATFORMS
 DEPENDENCIES
   bundler (~> 1.17)
   rake (~> 13.0)
-  revolut-api
   rspec (~> 3.0)
   ynab_sync!
 
