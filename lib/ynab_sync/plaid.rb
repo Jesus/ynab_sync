@@ -1,5 +1,4 @@
 require 'singleton'
-require 'plaid'
 
 class YnabSync::Plaid
   include Singleton
