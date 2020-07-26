@@ -1,7 +1,8 @@
 require "ynab_sync/account_sync"
 require "ynab_sync/plaid_account"
 require "ynab_sync/settings"
-require "ynab_sync/settings"
+require "ynab_sync/transaction"
+require "ynab_sync/version"
 require "ynab"
 
 module YnabSync

@@ -12,7 +12,7 @@ class YnabSync::PlaidAccount
     @access_token = access_token
   end
 
-  def transactions(from: Date.today - 7, to: Date.today + 1)
+  def transactions(from: Date.today - 15, to: Date.today + 1)
     @client.transactions.get(@access_token, from.to_s, to.to_s).transactions
   end
 end
