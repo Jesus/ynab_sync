@@ -1,35 +1,66 @@
+require 'byebug'
+
 class YnabSync::Transaction
-  def self.from_plaid(plaid_transaction)
-    new(
-      date: plaid_transaction.date,
-      amount: (plaid_transaction.amount * 1000 * -1).to_i,
-      memo: plaid_transaction.name
-    )
-  end
-
-  def self.from_ynab(ynab_transaction)
-    new(
-      date: ynab_transaction.date,
-      amount: ynab_transaction.amount,
-      memo: ynab_transaction.memo
-    )
-  end
-
-  attr_accessor :date,
-                :amount,
-                :memo
-
-  def initialize(date:, amount:, memo:)
-    @date = date
-    @amount = amount
-    @memo = memo
-  end
-
   def id
-    "(#{@amount}|#{@date}|#{@memo})"
+    "(#{self.amount}|#{self.date}|#{self.memo})"
   end
 
   def ==(other)
+    return true if is_same_transfer? other
+
     id == other.id
+  end
+
+  def is_same_transfer?(other)
+    return false if !is_transfer? || !other.is_transfer?
+    return false if amount + other.amount != 0
+    return false if false # dates are close enough
+
+    return true
+  end
+end
+
+class YnabSync::YnabTransaction < YnabSync::Transaction
+  def initialize(ynab_transaction)
+    @wrapped_transaction = ynab_transaction
+  end
+
+  def date
+    @wrapped_transaction.date
+  end
+
+  def amount
+    @wrapped_transaction.amount
+  end
+
+  def memo
+    @wrapped_transaction.memo
+  end
+
+  def is_transfer?
+    puts @wrapped_transaction.transfer_account_id
+    false
+  end
+end
+
+class YnabSync::PlaidTransaction < YnabSync::Transaction
+  def initialize(plaid_transaction)
+    @wrapped_transaction = plaid_transaction
+  end
+
+  def date
+    @wrapped_transaction.date
+  end
+
+  def amount
+    (@wrapped_transaction.amount * 1000 * -1).to_i
+  end
+
+  def memo
+    @wrapped_transaction.name
+  end
+
+  def is_transfer?
+    false
   end
 end

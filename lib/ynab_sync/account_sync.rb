@@ -26,12 +26,13 @@ class YnabSync::AccountSync
       @ynab_account_id
     )
     ynab_transactions = response.data.transactions.map do |transaction|
-      YnabSync::Transaction.from_ynab transaction
+      YnabSync::YnabTransaction.new transaction
     end
+    return
 
     # For each transaction in the bank account, see if it exists in YNAB
     @plaid_account.transactions.reverse.each do |plaid_transaction|
-      transaction = YnabSync::Transaction.from_plaid plaid_transaction
+      transaction = YnabSync::PlaidTransaction.new plaid_transaction
 
       # This transaction already exists in YNAB, skip to next
       next if ynab_transactions.any? { |t| t == transaction }
