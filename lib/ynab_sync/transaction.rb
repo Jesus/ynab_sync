@@ -7,6 +7,14 @@ class YnabSync::Transaction
     )
   end
 
+  def self.from_ynab(ynab_transaction)
+    new(
+      date: ynab_transaction.date,
+      amount: ynab_transaction.amount,
+      memo: ynab_transaction.memo
+    )
+  end
+
   attr_accessor :date,
                 :amount,
                 :memo
@@ -19,5 +27,9 @@ class YnabSync::Transaction
 
   def id
     "(#{@amount}|#{@date}|#{@memo})"
+  end
+
+  def ==(other)
+    id == other.id
   end
 end

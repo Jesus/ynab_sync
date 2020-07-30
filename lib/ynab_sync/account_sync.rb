@@ -25,17 +25,16 @@ class YnabSync::AccountSync
       @ynab_budget_id,
       @ynab_account_id
     )
-    ynab_transactions = Hash[response.data.transactions.map do |t|
-      [ynab_transaction_id(t), t]
-    end]
+    ynab_transactions = response.data.transactions.map do |transaction|
+      YnabSync::Transaction.from_ynab transaction
+    end
 
     # For each transaction in the bank account, see if it exists in YNAB
     @plaid_account.transactions.reverse.each do |plaid_transaction|
       transaction = YnabSync::Transaction.from_plaid plaid_transaction
-      ynab_transaction = ynab_transactions[transaction.id]
 
       # This transaction already exists in YNAB, skip to next
-      next if ynab_transaction
+      next if ynab_transactions.any? { |t| t == transaction }
 
       @ynab_client.transactions.create_transaction @ynab_budget_id, {
         transaction: {
@@ -54,9 +53,5 @@ class YnabSync::AccountSync
     # TODO: Automatically categorize transactions
 
     puts "Summary: #{n_imported_transactions} transaction(s) imported"
-  end
-
-  def ynab_transaction_id(transaction)
-    "(#{transaction.amount}|#{transaction.date}|#{transaction.memo})"
   end
 end
