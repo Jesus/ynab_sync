@@ -39,19 +39,41 @@ class YnabSync::AccountSync
       # This transaction is a transfer, we don't support importing these yet
       next if transaction.is_transfer?
 
+      transaction_params = {
+        account_id: @ynab_account_id,
+        date: transaction.date,
+        memo: transaction.memo,
+        amount: transaction.amount
+      }.merge(categorize(plaid_transaction))
+
       @ynab_client.transactions.create_transaction @ynab_budget_id, {
-        transaction: {
-          account_id: @ynab_account_id,
-          date: transaction.date,
-          memo: transaction.memo,
-          amount: transaction.amount
-        }
+        transaction: transaction_params
       }
       n_imported_transactions += 1
-      puts "Created #{transaction.id}: #{plaid_transaction}"
-      puts ""
     end
 
     puts "Summary: #{n_imported_transactions} transaction(s) imported"
+  end
+
+  def categorize(transaction)
+    raise ArgumentError unless transaction.is_a? Plaid::Models::Transaction
+
+    categorization = categorizations.find do |c|
+       c["name"].include? transaction.name
+    end
+
+    if categorization.nil?
+      puts "No categorization found for '#{transaction.name}'"
+      {}
+    else
+      {
+        payee_id: categorization["payee_id"],
+        category_id: categorization["category_id"]
+      }.compact
+    end
+  end
+
+  private def categorizations
+    YnabSync::Settings.instance.categories["ynab"]["categorizations"]
   end
 end
