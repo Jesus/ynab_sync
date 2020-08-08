@@ -52,8 +52,6 @@ class YnabSync::AccountSync
       puts ""
     end
 
-    # TODO: Automatically categorize transactions
-
     puts "Summary: #{n_imported_transactions} transaction(s) imported"
   end
 end

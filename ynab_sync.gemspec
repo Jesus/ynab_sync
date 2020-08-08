@@ -34,4 +34,5 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "plaid"
   spec.add_dependency "ynab"
+  spec.add_dependency "activesupport"
 end

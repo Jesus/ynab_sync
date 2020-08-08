@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+require "bundler/setup"
+require "ynab_sync"
+
+def print_usage
+  puts "Usage options:"
+  puts "$ bundle exec bin/dump accounts"
+  puts "$ bundle exec bin/dump payees <budget_id>"
+  puts "$ bundle exec bin/dump categories <budget_id>"
+
+  exit 1
+end
+
+print_usage if ARGV.count == 0
+
+case ARGV[0]
+when "accounts"
+  print_usage if ARGV.count != 1
+  YnabSync.dump_ynab_accounts
+when "payees"
+  print_usage if ARGV.count != 2
+  YnabSync.dump_ynab_payees ARGV[1]
+when "categories"
+  print_usage if ARGV.count != 2
+  YnabSync.dump_ynab_categories ARGV[1]
+else
+  print_usage
+end

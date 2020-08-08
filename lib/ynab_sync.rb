@@ -4,6 +4,7 @@ require "ynab_sync/settings"
 require "ynab_sync/transaction"
 require "ynab_sync/version"
 require "ynab"
+require "active_support/core_ext/string/inflections"
 
 module YnabSync
   class << self
@@ -35,6 +36,34 @@ module YnabSync
         accounts = account_response.data.accounts
         accounts.each do |account|
           puts "  #{account.name} (id: #{account.id})"
+        end
+      end
+    end
+
+    def dump_ynab_payees(budget_id)
+      settings = YnabSync::Settings.instance.settings["ynab"]
+      ynab = YNAB::API.new settings["access_token"]
+
+      response = ynab.payees.get_payees budget_id
+      payees = response.data.payees
+
+      puts "payees:"
+      payees.each do |payee|
+        puts "  - &#{payee.name.parameterize} #{payee.id}"
+      end
+    end
+
+    def dump_ynab_categories(budget_id)
+      settings = YnabSync::Settings.instance.settings["ynab"]
+      ynab = YNAB::API.new settings["access_token"]
+
+      response = ynab.categories.get_categories budget_id
+      groups = response.data.category_groups
+
+      puts "categories:"
+      groups.each do |group|
+        group.categories.each do |category|
+          puts "  - &#{category.name.parameterize} #{category.id}"
         end
       end
     end
