@@ -38,7 +38,6 @@ class YnabSync::YnabTransaction < YnabSync::Transaction
   end
 
   def is_transfer?
-    puts @wrapped_transaction.transfer_account_id
     false
   end
 end
@@ -61,6 +60,12 @@ class YnabSync::PlaidTransaction < YnabSync::Transaction
   end
 
   def is_transfer?
-    false
+    transfer_qualifying_names.any? do |name|
+      @wrapped_transaction.name.include? name
+    end
+  end
+
+  private def transfer_qualifying_names
+    YnabSync::Settings.instance.categories["plaid"]["transfer_qualifying_names"]
   end
 end

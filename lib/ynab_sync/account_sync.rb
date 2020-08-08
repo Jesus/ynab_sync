@@ -28,7 +28,6 @@ class YnabSync::AccountSync
     ynab_transactions = response.data.transactions.map do |transaction|
       YnabSync::YnabTransaction.new transaction
     end
-    return
 
     # For each transaction in the bank account, see if it exists in YNAB
     @plaid_account.transactions.reverse.each do |plaid_transaction|
@@ -36,6 +35,9 @@ class YnabSync::AccountSync
 
       # This transaction already exists in YNAB, skip to next
       next if ynab_transactions.any? { |t| t == transaction }
+
+      # This transaction is a transfer, we don't support importing these yet
+      next if transaction.is_transfer?
 
       @ynab_client.transactions.create_transaction @ynab_budget_id, {
         transaction: {
@@ -50,7 +52,6 @@ class YnabSync::AccountSync
       puts ""
     end
 
-    # TODO: Remove deleted transactions
     # TODO: Automatically categorize transactions
 
     puts "Summary: #{n_imported_transactions} transaction(s) imported"

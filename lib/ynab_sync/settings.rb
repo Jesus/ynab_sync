@@ -2,12 +2,14 @@ require 'singleton'
 require 'yaml'
 
 CONFIG_FILE = "credentials.yml"
+CATEGORIES_FILE = "categories.yml"
 
 class YnabSync::Settings
   include Singleton
 
   attr_reader :settings,
-              :accounts_in_sync
+              :accounts_in_sync,
+              :categories
 
   def initialize
     @settings = YAML.load_file(CONFIG_FILE)
@@ -23,5 +25,6 @@ class YnabSync::Settings
         plaid_access_token: plaid_account["access_token"]
       }
     end
+    @categories = YAML.load_file(CATEGORIES_FILE)
   end
 end
