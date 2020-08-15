@@ -49,7 +49,7 @@ module YnabSync
 
       puts "payees:"
       payees.each do |payee|
-        puts "  - &#{payee.name.parameterize} #{payee.id}"
+        puts "  - &payee-#{payee.name.parameterize} #{payee.id}"
       end
     end
 
@@ -63,7 +63,7 @@ module YnabSync
       puts "categories:"
       groups.each do |group|
         group.categories.each do |category|
-          puts "  - &#{category.name.parameterize} #{category.id}"
+          puts "  - &category-#{category.name.parameterize} #{category.id}"
         end
       end
     end

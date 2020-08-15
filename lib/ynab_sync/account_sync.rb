@@ -20,6 +20,7 @@ class YnabSync::AccountSync
   end
 
   def perform
+    @missing_categorizations = Set.new
     n_imported_transactions = 0
     response = @ynab_client.transactions.get_transactions_by_account(
       @ynab_budget_id,
@@ -53,17 +54,25 @@ class YnabSync::AccountSync
     end
 
     puts "Summary: #{n_imported_transactions} transaction(s) imported"
+    unless @missing_categorizations.empty?
+      puts "Missing categorizations:"
+      @missing_categorizations.each do |name|
+        puts "- name: \"#{name}\""
+        puts "  payee_id: *"
+        puts "  category_id: *"
+      end
+    end
   end
 
   def categorize(transaction)
     raise ArgumentError unless transaction.is_a? Plaid::Models::Transaction
 
     categorization = categorizations.find do |c|
-       c["name"].include? transaction.name
+      transaction.name.include? c["name"]
     end
 
     if categorization.nil?
-      puts "No categorization found for '#{transaction.name}'"
+      @missing_categorizations.add transaction.name
       {}
     else
       {
