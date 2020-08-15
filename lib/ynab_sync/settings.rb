@@ -20,6 +20,7 @@ class YnabSync::Settings
       raise "Access token not found" if plaid_account.nil?
 
       {
+        account_ref: account_settings["plaid_account_ref"],
         budget_id: account_settings["budget_id"],
         account_id: account_settings["account_id"],
         plaid_access_token: plaid_account["access_token"]

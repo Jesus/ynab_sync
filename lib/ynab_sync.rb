@@ -12,6 +12,7 @@ module YnabSync
       plaid_settings = YnabSync::Settings.instance.settings["plaid"]
       Settings.instance.accounts_in_sync.each do |account|
         AccountSync.perform(
+          account_ref: account[:account_ref],
           plaid_account: YnabSync::PlaidAccount.new(
             client_id: plaid_settings["client_id"],
             secret: plaid_settings["secret"],

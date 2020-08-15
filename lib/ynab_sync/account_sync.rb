@@ -7,7 +7,8 @@ class YnabSync::AccountSync
     syncer.perform
   end
 
-  def initialize(plaid_account:, ynab_budget_id:, ynab_account_id:)
+  def initialize(account_ref:, plaid_account:, ynab_budget_id:, ynab_account_id:)
+    @account_ref = account_ref
     @plaid_account = plaid_account
     init_ynab_client
     @ynab_budget_id = ynab_budget_id
@@ -53,7 +54,7 @@ class YnabSync::AccountSync
       n_imported_transactions += 1
     end
 
-    puts "Summary: #{n_imported_transactions} transaction(s) imported"
+    puts "#{@account_ref}: #{n_imported_transactions} transaction(s) imported"
     unless @missing_categorizations.empty?
       puts "Missing categorizations:"
       @missing_categorizations.each do |name|
