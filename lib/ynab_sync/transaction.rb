@@ -43,8 +43,14 @@ class YnabSync::YnabTransaction < YnabSync::Transaction
 end
 
 class YnabSync::PlaidTransaction < YnabSync::Transaction
-  def initialize(plaid_transaction)
+  def initialize(
+    plaid_transaction,
+    categorizations:,
+    transfer_qualifying_names:
+  )
     @wrapped_transaction = plaid_transaction
+    @categorizations = categorizations
+    @transfer_qualifying_names = transfer_qualifying_names
   end
 
   def date
@@ -60,12 +66,27 @@ class YnabSync::PlaidTransaction < YnabSync::Transaction
   end
 
   def is_transfer?
-    transfer_qualifying_names.any? do |name|
+    @transfer_qualifying_names.any? do |name|
       @wrapped_transaction.name.include? name
     end
   end
 
-  private def transfer_qualifying_names
-    YnabSync::Settings.instance.categories["plaid"]["transfer_qualifying_names"]
+  def category
+    @category ||= find_category
+  end
+
+  def find_category
+    categorization = @categorizations.find do |c|
+      @wrapped_transaction.name.include? c["name"]
+    end
+
+    if categorization.nil?
+      {}
+    else
+      {
+        payee_id: categorization["payee_id"],
+        category_id: categorization["category_id"]
+      }.compact
+    end
   end
 end

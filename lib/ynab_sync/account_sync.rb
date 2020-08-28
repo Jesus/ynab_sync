@@ -33,7 +33,11 @@ class YnabSync::AccountSync
 
     # For each transaction in the bank account, see if it exists in YNAB
     @plaid_account.transactions.reverse.each do |plaid_transaction|
-      transaction = YnabSync::PlaidTransaction.new plaid_transaction
+      transaction = YnabSync::PlaidTransaction.new(
+        plaid_transaction,
+        categorizations: categorizations,
+        transfer_qualifying_names: transfer_qualifying_names
+      )
 
       # This transaction already exists in YNAB, skip to next
       next if ynab_transactions.any? { |t| t == transaction }
@@ -46,7 +50,9 @@ class YnabSync::AccountSync
         date: transaction.date,
         memo: transaction.memo,
         amount: transaction.amount
-      }.merge(categorize(plaid_transaction))
+      }.merge(transaction.category)
+
+      @missing_categorizations.add(plaid_transaction.name) if transaction.category.empty?
 
       @ynab_client.transactions.create_transaction @ynab_budget_id, {
         transaction: transaction_params
@@ -65,25 +71,15 @@ class YnabSync::AccountSync
     end
   end
 
-  def categorize(transaction)
-    raise ArgumentError unless transaction.is_a? Plaid::Models::Transaction
-
-    categorization = categorizations.find do |c|
-      transaction.name.include? c["name"]
-    end
-
-    if categorization.nil?
-      @missing_categorizations.add transaction.name
-      {}
-    else
-      {
-        payee_id: categorization["payee_id"],
-        category_id: categorization["category_id"]
-      }.compact
-    end
+  private def categorizations
+    YnabSync::Settings
+      .instance
+      .categories(@ynab_budget_id)["ynab"]["categorizations"]
   end
 
-  private def categorizations
-    YnabSync::Settings.instance.categories["ynab"]["categorizations"]
+  private def transfer_qualifying_names
+    YnabSync::Settings
+      .instance
+      .categories(@ynab_budget_id)["plaid"]["transfer_qualifying_names"]
   end
 end

@@ -13,4 +13,4 @@
 .byebug_history
 
 credentials.yml
-categories.yml
+categories-*.yml

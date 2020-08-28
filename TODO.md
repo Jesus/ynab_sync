@@ -1,2 +1,3 @@
 - Sync Sabadell
+- Simplify the process to manage categorizations (sync, add, etc.).
 - Schedule every hour on Heroku.

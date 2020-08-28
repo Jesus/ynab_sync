@@ -8,8 +8,7 @@ class YnabSync::Settings
   include Singleton
 
   attr_reader :settings,
-              :accounts_in_sync,
-              :categories
+              :accounts_in_sync
 
   def initialize
     @settings = YAML.load_file(CONFIG_FILE)
@@ -26,6 +25,14 @@ class YnabSync::Settings
         plaid_access_token: plaid_account["access_token"]
       }
     end
-    @categories = YAML.load_file(CATEGORIES_FILE)
+  end
+
+  def categories(budget_id)
+    config_entry = @settings["ynab"]["categorizations"]
+      .find { |x| x["budget_id"] == budget_id }
+
+    raise "No categorization file found for #{budget_id}" if config_entry.nil?
+
+    YAML.load_file(config_entry["file"])
   end
 end
