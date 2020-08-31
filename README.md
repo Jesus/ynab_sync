@@ -28,4 +28,11 @@ $ git checkout master                           # Return to master
 ```
 
 Then you'll need to rebase `master-with-secrets` from `master` next time you
-want to deploy.
+want to deploy:
+
+```
+$ git checkout master-with-secrets
+$ git rebase master
+$ git push --force-with-lease heroku master-with-secrets:master
+$ get checkout master
+```
