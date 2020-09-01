@@ -1,4 +1,3 @@
-require 'byebug'
 
 class YnabSync::Transaction
   def id
