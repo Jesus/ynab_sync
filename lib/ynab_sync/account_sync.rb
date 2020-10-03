@@ -7,12 +7,19 @@ class YnabSync::AccountSync
     syncer.perform
   end
 
-  def initialize(account_ref:, plaid_account:, ynab_budget_id:, ynab_account_id:)
+  def initialize(
+    account_ref:,
+    plaid_account:,
+    ynab_budget_id:,
+    ynab_account_id:,
+    delay_days:
+  )
     @account_ref = account_ref
     @plaid_account = plaid_account
     init_ynab_client
     @ynab_budget_id = ynab_budget_id
     @ynab_account_id = ynab_account_id
+    @delay_days = delay_days
   end
 
   private def init_ynab_client
@@ -32,7 +39,10 @@ class YnabSync::AccountSync
     end
 
     # For each transaction in the bank account, see if it exists in YNAB
-    @plaid_account.transactions.reverse.each do |plaid_transaction|
+    plaid_transactions = @plaid_account
+      .transactions(to: Date.today - @delay_days)
+      .reverse
+    plaid_transactions.each do |plaid_transaction|
       transaction = YnabSync::PlaidTransaction.new(
         plaid_transaction,
         categorizations: categorizations,

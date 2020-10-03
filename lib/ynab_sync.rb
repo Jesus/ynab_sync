@@ -19,7 +19,8 @@ module YnabSync
             access_token: account[:plaid_access_token]
           ),
           ynab_budget_id: account[:budget_id],
-          ynab_account_id: account[:account_id]
+          ynab_account_id: account[:account_id],
+          delay_days: account[:delay_days]
         )
       end
     end
